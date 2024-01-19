@@ -3,11 +3,14 @@ package com.webservice.course.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.webservice.course.entities.enums.OrderStatus;
 import jakarta.persistence.*;
+import com.webservice.course.entities.Payment;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_order")
@@ -19,12 +22,19 @@ public class Order implements Serializable {
     private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant moment;
-
     private Integer orderStatus;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Payment payment;
+
+
 
     @ManyToOne()
     @JoinColumn(name = "client_id")
     private User client;
+
+    @OneToMany(mappedBy = "id.order")
+    private Set<OrderItem> items = new HashSet<>();
 
     public Order() {
 
@@ -36,6 +46,8 @@ public class Order implements Serializable {
         this.client = client;
         setOrderStatus(orderStatus);
     }
+
+
 
     public Long getId() {
         return id;
@@ -69,6 +81,18 @@ public class Order implements Serializable {
         if(orderStatus != null) {
             this.orderStatus = orderStatus.getCode();
         }
+    }
+
+    public Set<OrderItem> getItems() {
+        return items;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 
     @Override
